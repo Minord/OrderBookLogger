@@ -7,8 +7,7 @@ import logging
 con = sqlite3.connect("order-book-binance.db")
 cur = con.cursor()
 
-logging.basicConfig(filename='program.log', encoding='utf-8',
-                    level=logging.DEBUG)
+logging.basicConfig(filename='program.log', level=logging.DEBUG)
 
 rows_inserted = 0
 
