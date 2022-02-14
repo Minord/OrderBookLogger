@@ -4,10 +4,6 @@ from datetime import datetime
 import sqlite3
 import logging
 
-# The problem here is that i dont understant what and how the order book
-# Works and what it represent one of the things that i dont get rigth
-# is why the order book dont nofify me the orders that has been executed
-# and how the market trades behave.
 con = sqlite3.connect("order-book-binance.db")
 cur = con.cursor()
 
@@ -17,22 +13,21 @@ logging.basicConfig(filename='program.log', encoding='utf-8',
 rows_inserted = 0
 
 def on_message(ws, message):
+    global rows_inserted
     time = datetime.now()
-    time = datetime.timestamp(time)
-    cur.execute('INSERT INTO order_book VALUES (time, "{message}")')
+    time = datetime.timestamp(time) 
+    cur.execute(f'INSERT INTO order_book VALUES ({time}, \'{message}\');')
     con.commit()
+    rows_inserted += 1
     if rows_inserted % 100 == 0:
-        logging.info('{rows_inserted} has been inserted on db')
+        logging.info(f'{rows_inserted} has been inserted on db')
 
 def on_error(ws, error):
-    con.close()
-    logging.info('and error has occurred : {error}')
+    logging.info(f'an error has occurred : {error}')
     print(error)
 
 def on_close(ws, close_status_code, colos_msg):
-    con.close()
     logging.info('the websocket was closed')
-    print('the web socket has been closed')
 
 def on_open(ws):
     pass
@@ -40,11 +35,11 @@ def on_open(ws):
 
 if __name__ == "__main__":
     logging.info('Start Order Book Logger')
-    websocket.enableTrace(True)
-    uri = "wss://stream.binance.com/stream?streams=btcusdt@depth"
+    uri = """wss://stream.binance.com/stream?streams=btcusdt@depth"""
     ws = websocket.WebSocketApp(uri,
                                 on_open=on_open,
                                 on_message=on_message,
                                 on_error=on_error,
                                 on_close=on_close)
     ws.run_forever()
+    con.close()
