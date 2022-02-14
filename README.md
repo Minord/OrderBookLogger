@@ -13,7 +13,7 @@ sqlite3 order-book-binance.db "CREATE TABLE order_book (time timestamp, json tex
 
 ### Execute Program on background
 ``` bash
-nohup python3 booklogger.py
+nohup python3 booklogger.py &
 ```
 
 ### Stop Program
